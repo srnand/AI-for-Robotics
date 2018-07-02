@@ -5,6 +5,8 @@
 # any provided code OR comments. Good luck!
 
 from math import *
+import matplotlib.pyplot as plt
+import random
 
 class matrix:
     
@@ -145,12 +147,16 @@ class matrix:
 ########################################
 
 def filter(x, P):
+    ans=[]
+    ans2=[]
     for n in range(len(measurements)):
         
         # prediction
         x = (F * x) + u
         P = F * P * F.transpose()
         
+        ans2.append(x)
+
         # measurement update
         Z = matrix([measurements[n]])
         y = Z.transpose() - (H * x)
@@ -159,20 +165,25 @@ def filter(x, P):
         x = x + (K * y)
         P = (I - (K * H)) * P
     
-    print 'x= '
-    x.show()
-    print 'P= '
-    P.show()
+        # print 'x= '
+        # x.show()
+        # print 'P= '
+        # P.show()
+        ans.append(x)
+    return ans,ans2
 
 ########################################
 
 print "### 4-dimensional example ###"
 
-# measurements = [[5., 10.], [6., 8.], [7., 6.], [8., 4.], [9., 2.], [10., 0.]]
-# initial_xy = [4., 12.]
 
-measurements = [[1., 4.], [6., 0.], [11., -4.], [16., -8.]]
-initial_xy = [-4., 8.]
+measurements = [[i+5+random.random(), 50-2*i++random.random()] for i in range(15)]
+
+# measurements = [[5., 10.], [6., 8.], [7., 6.], [8., 4.], [9., 2.], [10., 0.]]
+initial_xy = [4., 52.]
+
+# measurements = [[1., 4.], [6., 0.], [11., -4.], [17., -8.]]
+# initial_xy = [-4., 8.]
 
 # measurements = [[1., 17.], [1., 15.], [1., 13.], [1., 11.]]
 # initial_xy = [1., 19.]
@@ -193,4 +204,19 @@ I =  matrix([[1.,0.,0.,0.],[0.,1.,0.,0.],[0.,0.,1.,0.],[0.,0.,0.,1.]])# 4d ident
 
 ###### DO NOT MODIFY ANYTHING HERE #######
 
-filter(x, P)
+updated_meas,pred_meas = filter(x, P)
+# for i in pred_meas:
+#     i.show()
+# print pred_meas[0].value[0]
+x=[i[0] for i in measurements]
+y=[i[1] for i in measurements]
+px=[i.value[0] for i in pred_meas]
+py=[i.value[1] for i in pred_meas]
+ux=[i.value[0] for i in updated_meas]
+uy=[i.value[1] for i in updated_meas]
+a=plt.plot(x,y,'-o',label="Ground Truth")
+b=plt.plot(px,py,'-o',label="Predicted")
+c=plt.plot(ux,uy,'-o',label="Updated")
+plt.legend()#(a,b,c),("Ground Truth","Predicted","Updated"),scatterpoints=1,loc='lower left')
+# plt.text(6, 25,"Predicted Velocity : "+"%.2f"%updated_meas[-1].value[0][0]+", %.2f"%updated_meas[-1].value[1][0])
+plt.show()
